@@ -1,2 +1,5 @@
 # Ignore virtualenv files 
 openblog-env
+
+# Ignore *.pyc
+*.pyc
