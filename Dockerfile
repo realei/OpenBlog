@@ -29,7 +29,7 @@ RUN pip install gunicorn
 
 # create the openblog user
 RUN addgroup -S openblog && adduser -S openblog -G openblog
-RUN chown -R openblog /usr/src/openblog 
+RUN chown -R openblog:openblog /usr/src/openblog 
 USER openblog
 
 # run entrypoint.sh
