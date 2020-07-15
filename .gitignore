@@ -4,3 +4,6 @@ openblog-env
 # Ignore */__pycache__ and *.pyc
 */__pycache__
 *.pyc
+
+# Ignore the NOTE.md, which is personal notebook for this project
+NOTE.md
