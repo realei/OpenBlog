@@ -1,9 +1,10 @@
 # Ignore virtualenv files 
 openblog-env
 
-# Ignore */__pycache__ and *.pyc
+# Ignore */__pycache__ and *.pyc *.swp
 */__pycache__
 *.pyc
+*.swp
 
 # Ignore the NOTE.md, which is personal notebook for this project
 NOTE.md
