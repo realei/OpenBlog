@@ -8,3 +8,6 @@ openblog-env
 
 # Ignore the NOTE.md, which is personal notebook for this project
 NOTE.md
+
+# Ignore the real secret file on Google GKE
+gke-secret.yaml

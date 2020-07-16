@@ -1,0 +1,235 @@
+cm.yaml:
+apiVersion: v1
+data:
+  REGISTER_NON_INTERACTIVE: "true"
+  REGISTER_LOCKED: "false"
+  METRICS_SERVER: "0.0.0.0:9100"
+  CI_SERVER_URL: "https://newgitlab.toorbee.com/ci"
+  RUNNER_REQUEST_CONCURRENCY: "4"
+  RUNNER_EXECUTOR: "kubernetes"
+  KUBERNETES_NAMESPACE: "swagger"
+  KUBERNETES_PRIVILEGED: "true"
+  KUBERNETES_CPU_LIMIT: "500m"
+  KUBERNETES_CPU_REQUEST: "100m"
+  KUBERNETES_MEMORY_LIMIT: "512Mi"
+  KUBERNETES_SERVICE_CPU_LIMIT: "1"
+  KUBERNETES_SERVICE_MEMORY_LIMIT: "1Gi"
+  KUBERNETES_HELPER_CPU_LIMIT: "500m"
+  KUBERNETES_HELPER_MEMORY_LIMIT: "100Mi"
+  KUBERNETES_PULL_POLICY: "if-not-present"
+  KUBERNETES_TERMINATIONGRACEPERIODSECONDS: "10"
+  KUBERNETES_POLL_INTERVAL: "5"
+  KUBERNETES_POLL_TIMEOUT: "360"
+kind: ConfigMap
+metadata:
+  labels:
+    app: swagger
+  name: swagger-cm
+  namespace: swagger
+
+
+
+
+
+
+swagger-service.yaml 
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: swagger-service
+  namespace: swagger
+  labels:
+    app: swagger
+    ref: stage
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8000"
+    prometheus.io/scheme: "http"
+    prometheus.io/path: "/metrics"
+spec:
+  type: NodePort
+  ports:
+    - name: http-metrics
+      port: 8000
+      targetPort: 8000
+      protocol: TCP
+      nodePort: 30005
+  selector:
+    app: swagger
+    ref: stage
+
+
+db-pv.yaml 
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: swagger-db-pv
+  namespace: swagger
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 500Mi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /data/swagger-db-pv
+
+
+
+db-pvc.yaml 
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: swagger-db-pvc
+  namespace: swagger
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Mi
+  volumeName: swagger-db-pv
+
+
+deployment.yaml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: swagger-stage
+  namespace: swagger
+  labels:
+    app: swagger
+    ref: stage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: swagger
+      ref: stage
+  template:
+    metadata:
+      labels:
+        app: swagger
+        ref: stage
+    spec:
+      imagePullSecrets:
+        - name: toorbeereg
+      volumes:
+        - name: web-data
+          emptyDir: {} 
+      containers:
+      - name: web
+        image: toorbee.azurecr.io/lei_w/swagger:latest
+        imagePullPolicy: Always
+        env:
+        - name: DEBUG
+          value: "1"
+        - name: SECRET_KEY
+          value: "toorbeeSwagger!2020"
+        - name: DJANGO_ALLOWED_HOSTS
+          value: "localhost 127.0.0.1 swagger.toorbee.com 116.203.226.249 116.203.226.235 [::1]"
+        ports:
+          - containerPort: 8000
+        volumeMounts:
+          - name: web-data
+            mountPath: /usr/src/web/
+
+            #volumes:
+            #  - name: db-volume-mount
+            #    persistentVolumeClaim:
+            #      claimName: swagger-db-pvc
+
+
+
+deployment.yaml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: videoapi-k8s-stage
+  namespace: gitlab
+  labels:
+    app: videoapi-k8s
+    ref: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: videoapi-k8s
+      ref: dev
+  template:
+    metadata:
+      labels:
+        app: videoapi-k8s
+        ref: dev
+    spec:
+      imagePullSecrets:
+        - name: toorbeereg
+      containers:
+      - name: web
+        image: toorbee.azurecr.io/lei_w/videoapi-web:latest
+        imagePullPolicy: Always
+        env:
+        - name: DEBUG
+          value: "1"
+        - name: SECRET_KEY
+          value: "please_change_me"
+        - name: DJANGO_ALLOWED_HOSTS
+          value: "localhost 127.0.0.1 116.203.226.249 116.203.226.235 [::1]"
+        - name: SQL_ENGINE
+          value: "django.db.backends.postgresql"
+        - name: SQL_DATABASE
+          value: "video_editor_prod"
+        - name: SQL_PORT
+          value: "5432"
+        - name: REST_DEFAULT_VERSIONING_CLASS
+          value: "rest_framework.versioning.Namespace"
+        - name: REST_DEFAULT_VERSION
+          value: "v0"
+        - name: REST_ALLOWED_VERSIONS
+          value: "v0"
+        - name: REST_VERSION_PARAM
+          value: "version"
+        - name: VIDEOAPI_VERSION
+          value: "v0.0.2"
+        - name: SQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-credentials
+              key: user
+
+        - name: SQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-credentials
+              key: password
+
+        - name: SQL_HOST
+          value: postgres-service
+
+        ports:
+          - containerPort: 8000
+        volumeMounts:
+          - name: videoapi-volume-mount
+            mountPath: /usr/src/videoapi/
+          - name: static-volume-mount
+            mountPath: /home/videoapi/web/staticfiles/
+          - name: media-volume-mount
+            mountPath: /home/videoapi/web/mediafiles/
+
+gitlab-ci-token-secret.yaml 
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gitlab-ci-token
+  namespace: kube-ops
+  labels:
+    app: gitlab-ci-runner
+data:
+  DATA_TOKEN: XXXXXXXXX

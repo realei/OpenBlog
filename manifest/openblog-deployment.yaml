@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openblog-stage
+  namespace: openblog
+  labels:
+    app: openblog
+    ref: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: openblog
+      ref: dev
+  template:
+    metadata:
+      labels:
+        app: openblog
+        ref: dev
+    spec:
+        #imagePullSecrets:
+        #  - name: registry_name
+      containers:
+      - name: web
+        image: lei_w/openblog:latest
+        imagePullPolicy: Always
+        env:
+        - name: DEBUG
+          value: "1"
+        - name: SECRET_KEY
+          value: "please_change_me"
+        - name: DJANGO_ALLOWED_HOSTS
+          value: "localhost 127.0.0.1 www.realei.tech [::1]"
+        - name: SQL_ENGINE
+          value: "django.db.backends.postgresql"
+        - name: SQL_DATABASE
+          value: "openblog_prod"
+        - name: SQL_PORT
+          value: "5432"
+        - name: SQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: openblog-credentials
+              key: user
+
+        - name: SQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ospenblog-credentials
+              key: password
+
+        - name: SQL_HOST
+          value: XXXXXXu
+
+        ports:
+          - containerPort: 8000
+        volumeMounts:
+          - name: static-volume-mount
+            mountPath: /usr/src/openblog/static/
+          - name: media-volume-mount
+            mountPath: /usr/src/openblog/media/
