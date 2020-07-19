@@ -28,34 +28,70 @@ spec:
         - name: DEBUG
           value: "1"
         - name: SECRET_KEY
-          value: "please_change_me"
+          valueFrom:
+            secretKeyRef:
+              name: openblog_secret
+              key: django_secret_key
+
         - name: DJANGO_ALLOWED_HOSTS
-          value: "localhost 127.0.0.1 www.realei.tech [::1]"
+          valueFrom:
+            secretKeyRef:
+              name: openblog_secret
+              key: django_allowed_hosts
+
         - name: SQL_ENGINE
           value: "django.db.backends.postgresql"
         - name: SQL_DATABASE
-          value: "openblog_prod"
+          valueFrom:
+            secretKeyRef:
+              name: openblog-secret
+              key: db_database 
+
         - name: SQL_PORT
-          value: "5432"
+          valueFrom:
+            secretKeyRef:
+              name: openblog-secret
+              key: db_port
+
         - name: SQL_USER
           valueFrom:
             secretKeyRef:
-              name: openblog-credentials
-              key: user
+              name: openblog-secret
+              key: db_user
 
         - name: SQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: ospenblog-credentials
-              key: password
+              name: openblog-secret
+              key: db_password
 
         - name: SQL_HOST
-          value: XXXXXXu
+          valueFrom:
+            secretKeyRef:
+              name: openblog_secret
+              key: db_host
 
         ports:
           - containerPort: 8000
+      - image: gcr.io/cloudsql-docker/gce-proxy:1.16
+        name: cloudsql-proxy
+        command: ["/cloud_sql_proxy", "--dir=/cloudsql",
+                  "-instances= active-bot-272607:europe-north1:openblog-postgre=tcp:5432",
+                  "-credential_file=/secrets/cloudsql/credentials.json"]
         volumeMounts:
-          - name: static-volume-mount
-            mountPath: /usr/src/openblog/static/
-          - name: media-volume-mount
-            mountPath: /usr/src/openblog/media/
+          - name: cloudsql-oauth-credentials
+            mountPath: /secrets/cloudsql
+            readOnly: true
+          - name: ssl-certs
+            mountPath: /etc/ssl/certs
+          - name: cloudsql
+            mountPath: /cloudsql
+      volumes:
+        - name: cloudsql-oauth-credentials
+          secret:
+            secretName: cloudsql-oauth-credentials
+        - name: ssl-certs
+          hostPath:
+            path: /etc/ssl/certs
+        - name: cloudsql
+          emptyDir:

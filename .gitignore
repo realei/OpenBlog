@@ -11,3 +11,7 @@ NOTE.md
 
 # Ignore the real secret file on Google GKE
 gke-secret.yaml
+*env.dev
+# Ignore static and media files 
+static 
+media
