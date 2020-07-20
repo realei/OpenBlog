@@ -1,6 +1,8 @@
 from django.db import models
 
 from wagtail.api import APIField
+from wagtail.core.models import Orderable, Page
+from wagtail.core.fields import RichTextField
 
 class BlogPageAuthor(Orderable):
     page = models.ForeignKey('blog.BlogPage', on_delete=models.CASCADE, related_name='authors')
@@ -14,7 +16,7 @@ class BlogPageAuthor(Orderable):
 class BlogPage(Page):
     published_date = models.DateTimeField()
     body = RichTextField()
-    feed_image = models.ForeignKey('wagtailimages.Image', on_delete=models.CASCADE, ...)
+    feed_image = models.ForeignKey('wagtailimages.Image', on_delete=models.CASCADE)
     private_field = models.CharField(max_length=255)
 
     # Export fields over the API

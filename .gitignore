@@ -12,6 +12,10 @@ NOTE.md
 # Ignore the real secret file on Google GKE
 gke-*
 *env.dev
+
 # Ignore static and media files 
 static 
 media
+
+# Ignore Migration files
+*/migrations

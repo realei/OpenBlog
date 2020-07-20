@@ -17,3 +17,9 @@ https://help.pythonanywhere.com/pages/environment-variables-for-web-apps/
 ## Google Kubernetes Engine Configuration 
 
 1. [How to config kubernetes with Cloud SQL](https://cloud.google.com/sql/docs/postgres/connect-kubernetes-engine)
+
+## As a contributer:
+1. code check:
+'''
+flake8 --ignore=E501,F401 .
+'''
