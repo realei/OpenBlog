@@ -10,7 +10,7 @@ openblog-env
 NOTE.md
 
 # Ignore the real secret file on Google GKE
-gke-secret.yaml
+gke-*
 *env.dev
 # Ignore static and media files 
 static 
