@@ -17,8 +17,14 @@ class BlogPageAuthor(Orderable):
 
 class BlogPage(Page):
     body = RichTextField(blank=True)
-    feed_image = models.ForeignKey('wagtailimages.Image', on_delete=models.CASCADE)
-    private_field = models.CharField(max_length=255)
+    feed_image = models.ForeignKey(
+        "wagtailimages.Image",
+        null=True,
+        blank=False,
+        on_delete=models.SET_NULL,
+        related_name="+"
+    )
+    #private_field = models.CharField(max_length=255)
 
 
     content_panels = Page.content_panels + [
