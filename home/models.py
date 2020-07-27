@@ -29,9 +29,12 @@ class HomePage(Page):
         related_name="+"
    )
 
+    body = RichTextField(blank=True)
+
     content_panels = Page.content_panels + [
         FieldPanel("banner_title"),
         FieldPanel("banner_subtitle"),
+        FieldPanel("body"),
         ImageChooserPanel("banner_image"),
         PageChooserPanel("banner_cta")
     ]
