@@ -17,19 +17,19 @@ The swagger api document is available at url: http://www.realei.tech/swagger/
 1. [Setting ur your GKE configuration](https://cloud.google.com/python/django/kubernetes-engine#setting_up_your_configuration_)
 2. [Collect and upload static and media resources](https://cloud.google.com/python/django/kubernetes-engine#collect_and_upload_static_resources)
 * Create a Cloud Storage bucket and make it publicly readable. Replace [YOUR_GCS_BUCKET] with a bucket name of your choice. For example, you could use your project ID as a bucket name.
-'''console
+'''shell
 openblog@realei:~$ gsutil mb gs://[YOUR_GCS_BUCKET]
 openblog@realei:~$ gsutil defacl set public-read gs://[YOUR_GCS_BUCKET]
 
 '''
 
 * Gather all the static content **locally** into one folder:
-'''console
+'''shell
 openblog@realei:~$ python manage.py collectstatic
 '''
 
 * Upload the static content to **Cloud Storage**:
-'''console
+'''shell
 openblog@realei:~$ gsutil -m rsync -r ./static gs://[YOUR_GCS_BUCKET]/static
 openblog@realei:~$ gsutil -m rsync -r ./media gs://[YOUR_GCS_BUCKET]/media
 '''
@@ -38,17 +38,17 @@ openblog@realei:~$ gsutil -m rsync -r ./media gs://[YOUR_GCS_BUCKET]/media
 4. [Setup Cloud SQL](https://cloud.google.com/python/django/kubernetes-engine#set_up_cloud_sql)
 5. [Deploy OpenBlog to GKE](https://cloud.google.com/python/django/kubernetes-engine#deploy_the_app_to_gke)
 * Create namespaces for openblog
-'''console 
+'''shell 
 openblog@realei:~$ kubectl create namespace openblog
 '''
 6. Generate Base64 encoded password for secret
-'''console
+'''shell
 openblog@realei:~$ echo Pa33w0rd@OpenBlog | base64 -w0
 '''
 and update *manifest/openblog-secret.yaml*
 
 7. Update files upder *./manifest*
-'''console
+'''shell
 -rw-rw-r-- 1 openblog openblog  690 Jul 27 11:47 openblog-cm.yaml
 -rw-rw-r-- 1 openblog openblog 2149 Jul 27 12:39 openblog-deployment.yaml
 -rw-rw-r-- 1 openblog openblog  270 Jul 27 11:47 openblog-pvc.yaml
@@ -59,12 +59,12 @@ and update *manifest/openblog-secret.yaml*
 '''
 
 8. Run the kubectl command to deploy the cluster and expose the service 
-''' console
-openblog@realei:~$ kubectl apply -f manifest/.
+''' shell
+kubectl apply -f manifest/.
 '''
 
 9. Get the External Ip from GKE(where your OpenBlog service is exposed)
-'''console
+'''shell
 openblog@realei:~$ kubectl get services -n openblog
 NAME               TYPE           CLUSTER-IP   EXTERNAL-IP      PORT(S)        AGE
 openblog-service   LoadBalancer   10.0.7.7     35.XXX.XXX.XXX   80:32488/TCP   2d22h
