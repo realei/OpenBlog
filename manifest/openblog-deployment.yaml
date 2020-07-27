@@ -20,19 +20,19 @@ spec:
     spec:
       containers:
       - name: web
-        image: gcr.io/active-bot-272607/openblog:v0.0.4
+        image: gcr.io/<your-project-id>/openblog:latest
         imagePullPolicy: Always
         env:
           - name: DEBUG
             value: "1"
           - name: SECRET_KEY
-            value: "dlinguiemng#!dfadf123##%%1wer"
+            value: "Please_Change_Me"
           - name: DJANGO_ALLOWED_HOSTS
-            value: "localhost 127.0.0.1 35.228.28.69 www.realei.tech realei.tech [::1]"
+            value: "localhost www.realei.tech [::1]"
           - name: STATIC_URL
-            value: "http://storage.googleapis.com/openblog_bucket_1/static/" 
+            value: "http://storage.googleapis.com/<YOUR_GCS_BUCKET>/static/" 
           - name: MEDIA_URL
-            value: "http://storage.googleapis.com/openblog_bucket_1/media/" 
+            value: "http://storage.googleapis.com/<YOUR_GCS_BUCKET>/media/" 
           - name: SQL_ENGINE
             value: "django.db.backends.postgresql"
           - name: SQL_DATABASE
@@ -42,11 +42,10 @@ spec:
           - name: SQL_USER
             value: "openblog"
           - name: SQL_PASSWORD
-            value: "UGEzM3cwcmRAT3BlbkJsb2cK"
-            #valueFrom:
-            #  secretKeyRef:
-            #    name: openblog-secret
-            #    key: db_password
+            valueFrom:
+              secretKeyRef:
+                name: openblog-secret
+                key: db_password
 
         ports:
           - containerPort: 8000
@@ -54,7 +53,7 @@ spec:
       - image: gcr.io/cloudsql-docker/gce-proxy:1.16
         name: cloudsql-proxy
         command: ["/cloud_sql_proxy", "--dir=/cloudsql",
-                  "-instances=active-bot-272607:europe-north1:openblog-postgre=tcp:5432",
+                  "-instances=<your-cloudsql-connection-string>=tcp:5432",
                   "-credential_file=/secrets/cloudsql/credentials.json"]
         volumeMounts:
           - name: cloudsql-oauth-credentials
