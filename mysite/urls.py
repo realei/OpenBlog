@@ -16,7 +16,7 @@ from .api import api_router
 
 schema_view = get_schema_view(
    openapi.Info(
-      title="OpenBLog API",
+      title="OpenBlog REST Api",
       default_version='v2',
       description="This is mainly for demo purpose",
       terms_of_service="https://www.realei.tech",
