@@ -20,3 +20,6 @@ media
 
 # Ignore Migration files
 */migrations
+
+# Ignore Deep Learning Trained Weights (>200Mb)
+weights
