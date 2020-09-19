@@ -1,6 +1,6 @@
 # eAspis
 
-This is an Open Source Blog based on Wagtail CMS, Bulma, and Vue.js
+"Aspis" is an ancient Greek which means shield. The eAspis is an opensource project which protect personal privacy on the internet, expecially for personal photos and videos
 
 ## Google Kubernetes Engine Configuration 
 
